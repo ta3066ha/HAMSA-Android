@@ -27,8 +27,10 @@ jobs:
           pip install jdatetime flet-geolocator flet-webview
 
       - name: Build APK
+        env:
+          CI: "1"
         run: |
-          flet build apk \
+          yes | flet build apk \
             --module-name HAMSA_android \
             --permissions location
 
