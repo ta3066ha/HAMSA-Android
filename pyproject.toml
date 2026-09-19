@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "HAMSA weather application"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "flet",
+    "flet==1.0.0",
     "jdatetime",
     "flet-geolocator",
     "flet-webview"
