@@ -1,0 +1,21 @@
+[project]
+name = "hamsa-android"
+version = "1.0.0"
+description = "HAMSA weather application"
+requires-python = ">=3.10"
+dependencies = [
+    "flet==1.0.0",
+    "jdatetime",
+    "flet-geolocator",
+    "flet-webview"
+]
+
+[tool.flet]
+product = "HAMSA"
+org = "com.hamsa"
+module = "HAMSA_android.py"
+
+[tool.flet.android]
+permissions = [
+    "location"
+]
