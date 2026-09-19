@@ -2,7 +2,7 @@
 name = "hamsa-android"
 version = "1.0.0"
 description = "HAMSA weather application"
-requires-python = ">=3.13,<3.14"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "flet",
     "jdatetime",
