@@ -18,8 +18,8 @@ dependencies = [
 [tool.flet]
 product = "همسا"
 org = "com.hamsa"
-module = "HAMSA_android.py"
-icon = "1786096467029.jpg"
+icon_background = "#ffffff"
+icon = assets/icon.png
 
 [tool.flet.android]
 permissions = [
