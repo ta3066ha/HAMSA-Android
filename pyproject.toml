@@ -3,18 +3,28 @@ name = "hamsa-android"
 version = "1.0.0"
 description = "HAMSA weather application"
 requires-python = ">=3.12,<3.13"
+
 dependencies = [
     "flet==1.0.0",
+    "aiohttp",
     "jdatetime",
     "flet-geolocator",
-    "flet-webview"
+    "flet-webview",
+    "pandas",
+    "numpy",
+    "scikit-learn"
 ]
 
 [tool.flet]
-product = "HAMSA"
+product = "همسا"
 org = "com.hamsa"
+module = "HAMSA_android.py"
+icon = "1786096467029.jpg"
 
 [tool.flet.android]
 permissions = [
     "location"
+]
+extract_packages = [
+    "sklearn"
 ]
