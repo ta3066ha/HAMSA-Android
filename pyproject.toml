@@ -27,3 +27,6 @@ permissions = [
 extract_packages = [
     "sklearn"
 ]
+
+[tool.flet.flutter.pubspec.dependency_overrides]
+jni = "1.1.0"
