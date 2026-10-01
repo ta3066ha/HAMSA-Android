@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install jdatetime flet-geolocator flet-webview
+          pip install aiohttp jdatetime flet-geolocator flet-webview pandas numpy scikit-learn
 
       - name: Build APK
         env:
