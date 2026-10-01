@@ -5,11 +5,11 @@ description = "HAMSA weather application"
 requires-python = ">=3.12,<3.13"
 
 dependencies = [
-    "flet==1.0.0",
+    "flet==1.0.1",
     "aiohttp",
     "jdatetime",
-    "flet-geolocator",
-    "flet-webview",
+    "flet-geolocator==1.0.1",
+    "flet-webview==1.0.1",
     "pandas",
     "numpy",
     "scikit-learn"
@@ -19,7 +19,6 @@ dependencies = [
 product = "همسا"
 org = "com.hamsa"
 icon_background = "#112432"
-
 
 [tool.flet.android]
 permissions = [
