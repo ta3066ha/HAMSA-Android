@@ -18,7 +18,6 @@ dependencies = [
 [tool.flet]
 product = "همسا"
 org = "com.hamsa"
-icon = icon.png
 icon_background = "#112432"
 
 
