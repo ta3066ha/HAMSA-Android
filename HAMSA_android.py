@@ -17,14 +17,69 @@ import numpy as np
 
 
 def main(page: ft.Page):
+
     page.bgcolor = ft.Colors.BLUE_100
 
+    # --------------------------------------------------
+    # مسیر فایل loc.csv
+    # --------------------------------------------------
+    def get_loc_path():
+
+        data_dir = os.getenv("FLET_APP_STORAGE_DATA")
+
+        if not data_dir:
+            data_dir = os.path.dirname(__file__)
+
+        os.makedirs(data_dir, exist_ok=True)
+
+        loc_path = os.path.join(data_dir, "loc.csv")
+
+        # اگر loc.csv قبلاً ساخته نشده باشد،
+        # فایل اولیه پروژه را کپی می‌کنیم.
+        if not os.path.exists(loc_path):
+
+            bundled_loc = os.path.join(
+                os.path.dirname(__file__),
+                "loc.csv"
+            )
+
+            if os.path.exists(bundled_loc):
+
+                with open(
+                    bundled_loc,
+                    "r",
+                    encoding="utf-8"
+                ) as src:
+                    content = src.read()
+
+                with open(
+                    loc_path,
+                    "w",
+                    encoding="utf-8"
+                ) as dst:
+                    dst.write(content)
+
+            else:
+
+                with open(
+                    loc_path,
+                    "w",
+                    encoding="utf-8"
+                ) as f:
+                    f.write("lat,lon\nN,N\n")
+
+        return loc_path
+
+    # --------------------------------------------------
+    # صفحه انتخاب مکان
+    # --------------------------------------------------
     def weater():
 
         def back(event):
             start()
 
         def date_change(event):
+
             y = event.control.value.year
             m = event.control.value.month
             d = event.control.value.day
@@ -55,10 +110,15 @@ def main(page: ft.Page):
             print(shamsi_date)
             print(date)
 
+        # --------------------------------------------------
+        # گرفتن موقعیت فعلی کاربر
+        # --------------------------------------------------
         async def G(event):
+
             geo = flet_geolocator.Geolocator()
 
             permission = await geo.request_permission()
+
             print(permission)
 
             position = await geo.get_current_position()
@@ -69,41 +129,65 @@ def main(page: ft.Page):
             print(la)
             print(lo)
 
-            base_path = os.path.dirname(__file__)
-            p = os.path.join(base_path, "loc.csv")
+            # مسیر قابل نوشتن loc.csv
+            p = get_loc_path()
 
-            with open(p, "w", newline="", encoding="utf-8") as f:
+            with open(
+                p,
+                "w",
+                newline="",
+                encoding="utf-8"
+            ) as f:
+
                 writer = csv.DictWriter(
                     f,
                     fieldnames=["lat", "lon"]
                 )
+
                 writer.writeheader()
+
                 writer.writerow({
                     "lat": la,
                     "lon": lo
                 })
 
-            print(f"Location Updated: Lat={la}, Lon={lo}")
+            print(
+                f"Location Updated: Lat={la}, Lon={lo}"
+            )
 
             start()
 
+        # --------------------------------------------------
+        # انتخاب مکان از WebView
+        # --------------------------------------------------
         async def M(event):
+
             page.clean()
 
             def get_url(event):
+
                 url_str = event.data
 
                 if "hamsa://location" in url_str:
-                    try:
-                        url = urlparse(url_str)
-                        params = parse_qs(url.query)
 
-                        if "lat" in params and "lng" in params:
+                    try:
+
+                        url = urlparse(url_str)
+
+                        params = parse_qs(
+                            url.query
+                        )
+
+                        if (
+                            "lat" in params
+                            and "lng" in params
+                        ):
+
                             la = params["lat"][0]
                             lo = params["lng"][0]
 
-                            base_path = os.path.dirname(__file__)
-                            p = os.path.join(base_path, "loc.csv")
+                            # مسیر قابل نوشتن loc.csv
+                            p = get_loc_path()
 
                             with open(
                                 p,
@@ -114,7 +198,10 @@ def main(page: ft.Page):
 
                                 writer = csv.DictWriter(
                                     f,
-                                    fieldnames=["lat", "lon"]
+                                    fieldnames=[
+                                        "lat",
+                                        "lon"
+                                    ]
                                 )
 
                                 writer.writeheader()
@@ -125,13 +212,17 @@ def main(page: ft.Page):
                                 })
 
                             print(
-                                f"Location Updated: Lat={la}, Lon={lo}"
+                                f"Location Updated: "
+                                f"Lat={la}, Lon={lo}"
                             )
 
                             start()
 
                     except Exception as e:
-                        print(f"Error parsing URL: {e}")
+
+                        print(
+                            f"Error parsing URL: {e}"
+                        )
 
             webview = fw.WebView(
                 url="https://your-location-picker.com",
@@ -182,9 +273,13 @@ def main(page: ft.Page):
                 b1,
                 b2
             ],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            horizontal_alignment=(
+                ft.CrossAxisAlignment.CENTER
+            ),
             spacing=30,
-            alignment=ft.MainAxisAlignment.CENTER,
+            alignment=(
+                ft.MainAxisAlignment.CENTER
+            ),
             expand=True
         )
 
@@ -224,7 +319,11 @@ def main(page: ft.Page):
 
         page.add(stack1)
 
+    # --------------------------------------------------
+    # صفحه اصلی برنامه
+    # --------------------------------------------------
     def start():
+
         page.clean()
 
         T = {}
@@ -232,10 +331,16 @@ def main(page: ft.Page):
         H = {}
         P = {}
 
+        # --------------------------------------------------
+        # پیش‌بینی آب‌وهوا
+        # --------------------------------------------------
         async def p_weater(event):
-
+            
             print("حالت پیش بینی فعال شد!")
 
+            # --------------------------------------------------
+            # دریافت اطلاعات آب‌وهوا
+            # --------------------------------------------------
             async def get_weather(
                 lat,
                 lon,
@@ -251,6 +356,9 @@ def main(page: ft.Page):
 
                 async with aiohttp.ClientSession() as session:
 
+                    # ------------------------------------------
+                    # دریافت اطلاعات 5 سال گذشته
+                    # ------------------------------------------
                     for i in range(1, 6):
 
                         target_year = (
@@ -264,16 +372,22 @@ def main(page: ft.Page):
                         )
 
                         params = {
+
                             "latitude": lat,
+
                             "longitude": lon,
+
                             "start_date": date_str,
+
                             "end_date": date_str,
+
                             "hourly": (
                                 "temperature_2m,"
                                 "wind_speed_10m,"
                                 "relative_humidity_2m,"
                                 "surface_pressure"
                             ),
+
                             "timezone": "auto"
                         }
 
@@ -322,14 +436,15 @@ def main(page: ft.Page):
                                 print("تمام شد")
 
                             else:
+
                                 print(
                                     f"خطا در دریافت دیتای "
                                     f"سال {target_year}"
                                 )
 
-                    # -----------------------------
+                    # ------------------------------------------
                     # دریافت دیتای دیروز
-                    # -----------------------------
+                    # ------------------------------------------
 
                     yesterday = (
                         datetime.now()
@@ -347,16 +462,22 @@ def main(page: ft.Page):
                     )
 
                     params = {
+
                         "latitude": lat,
+
                         "longitude": lon,
+
                         "start_date": date_str,
+
                         "end_date": date_str,
+
                         "hourly": (
                             "temperature_2m,"
                             "wind_speed_10m,"
                             "relative_humidity_2m,"
                             "surface_pressure"
                         ),
+
                         "timezone": "auto"
                     }
 
@@ -405,13 +526,14 @@ def main(page: ft.Page):
                             print("تمام شد")
 
                         else:
+
                             print(
                                 "خطا در دریافت دیتای دیروز"
                             )
 
-                # -----------------------------
+                # --------------------------------------------------
                 # ساخت دیتای آموزشی
-                # -----------------------------
+                # --------------------------------------------------
 
                 np.random.seed(42)
 
@@ -431,6 +553,7 @@ def main(page: ft.Page):
                 ]
 
                 params1 = {
+
                     "ابری": (
                         [18, 60, 1012, 8],
                         [3, 10, 2, 3]
@@ -458,6 +581,7 @@ def main(page: ft.Page):
                 }
 
                 params0 = {
+
                     "بادی بدون ابر": (
                         [19, 25, 1011, 35],
                         [2, 5, 2, 5]
@@ -469,9 +593,9 @@ def main(page: ft.Page):
                     )
                 }
 
-                # -----------------------------
+                # --------------------------------------------------
                 # مدل اول
-                # -----------------------------
+                # --------------------------------------------------
 
                 X1 = []
                 y1 = []
@@ -497,6 +621,7 @@ def main(page: ft.Page):
                     )
 
                 X1 = np.vstack(X1)
+
                 y1 = np.concatenate(y1)
 
                 X1_train, X1_test, y1_train, y1_test = (
@@ -537,9 +662,9 @@ def main(page: ft.Page):
                     accuracy
                 )
 
-                # -----------------------------
+                # --------------------------------------------------
                 # مدل دوم
-                # -----------------------------
+                # --------------------------------------------------
 
                 X0 = []
                 y0 = []
@@ -565,6 +690,7 @@ def main(page: ft.Page):
                     )
 
                 X0 = np.vstack(X0)
+
                 y0 = np.concatenate(y0)
 
                 X0_train, X0_test, y0_train, y0_test = (
@@ -605,9 +731,9 @@ def main(page: ft.Page):
                     accuracy0
                 )
 
-                # -----------------------------
+                # --------------------------------------------------
                 # میانگین آب‌وهوا
-                # -----------------------------
+                # --------------------------------------------------
 
                 avg_T = (
                     sum(T[i] for i in range(1, 6))
@@ -634,9 +760,9 @@ def main(page: ft.Page):
                 print("W:", W)
                 print("P:", P)
 
-                # -----------------------------
+                # --------------------------------------------------
                 # پیش‌بینی مدل اول
-                # -----------------------------
+                # --------------------------------------------------
 
                 input_data = np.array([
                     [
@@ -659,9 +785,9 @@ def main(page: ft.Page):
                     prediction1[0]
                 ]
 
-                # -----------------------------
+                # --------------------------------------------------
                 # پیش‌بینی مدل دوم
-                # -----------------------------
+                # --------------------------------------------------
 
                 input_scaled0 = (
                     scaler0.transform(input_data)
@@ -675,9 +801,9 @@ def main(page: ft.Page):
                     prediction0[0]
                 ]
 
-                # -----------------------------
+                # --------------------------------------------------
                 # نمایش نتیجه
-                # -----------------------------
+                # --------------------------------------------------
 
                 t11 = ft.Container(
                     content=ft.Text(
@@ -763,37 +889,36 @@ def main(page: ft.Page):
                         r1,
 
                         ft.Text(
-                            f"{round(avg_T,1)}C | "
-                            f"{round(avg_H,1)}% | "
-                            f"{round(avg_W,1)}km/h | "
-                            f"{round(avg_P,1)}hpa",
+                            f"{round(avg_T, 1)}C | "
+                            f"{round(avg_H, 1)}% | "
+                            f"{round(avg_W, 1)}km/h | "
+                            f"{round(avg_P, 1)}hpa",
                             size=20,
                             weight=ft.FontWeight.BOLD,
                             color="#004080"
                         )
                     ],
+
                     horizontal_alignment=(
                         ft.CrossAxisAlignment.CENTER
                     ),
+
                     spacing=5,
+
                     alignment=(
                         ft.MainAxisAlignment.CENTER
                     ),
+
                     expand=True
                 )
 
                 page.update()
 
-            # -----------------------------
-            # خواندن loc.csv بدون pandas
-            # -----------------------------
+            # --------------------------------------------------
+            # خواندن loc.csv
+            # --------------------------------------------------
 
-            base_path = os.path.dirname(__file__)
-
-            loc = os.path.join(
-                base_path,
-                "loc.csv"
-            )
+            loc = get_loc_path()
 
             try:
 
@@ -806,24 +931,45 @@ def main(page: ft.Page):
 
                     reader = csv.DictReader(f)
 
-                    row = next(reader, None)
+                    row = next(
+                        reader,
+                        None
+                    )
 
                 if row is None:
+
                     weater()
+
                     return
 
                 lat = row["lat"]
                 lon = row["lon"]
 
-                print("Location from CSV:")
-                print("Lat:", lat)
-                print("Lon:", lon)
+                print(
+                    "Location from CSV:"
+                )
 
-                if lat == "N" and lon == "N":
+                print(
+                    "Lat:",
+                    lat
+                )
+
+                print(
+                    "Lon:",
+                    lon
+                )
+
+                # هنوز مکان تعیین نشده
+                if (
+                    lat == "N"
+                    and lon == "N"
+                ):
+
                     weater()
+
                     return
 
-                # تبدیل به عدد
+                # تبدیل مختصات به عدد
                 lat = float(lat)
                 lon = float(lon)
 
@@ -835,6 +981,7 @@ def main(page: ft.Page):
                 )
 
                 weater()
+
                 return
 
             now = datetime.now()
@@ -855,9 +1002,9 @@ def main(page: ft.Page):
 
             page.update()
 
-        # -----------------------------
+        # --------------------------------------------------
         # صفحه اصلی
-        # -----------------------------
+        # --------------------------------------------------
 
         base_path = os.path.dirname(__file__)
 
@@ -1040,6 +1187,10 @@ def main(page: ft.Page):
 
         page.add(stack)
 
+    # --------------------------------------------------
+    # تاریخ
+    # --------------------------------------------------
+
     date = {
         "y": None,
         "m": None,
@@ -1048,6 +1199,7 @@ def main(page: ft.Page):
         "c": None
     }
 
+    # شروع برنامه
     start()
 
 
