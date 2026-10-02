@@ -10,7 +10,6 @@ dependencies = [
     "jdatetime",
     "flet-geolocator==1.0.1",
     "flet-webview==1.0.1",
-    "pandas",
     "numpy",
     "scikit-learn"
 ]
